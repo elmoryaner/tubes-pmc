@@ -1,109 +1,20 @@
 /*  Nama: Kadhan Dalilurahman, Elmo Ryaner Panggabean, Maheswara Apta Adiyatma
     NIM : 13220001, 13220012, 18320005
-    Program Minimisasi Logika 
+    Program Minimisasi Logika
     Referensi: https://arxiv.org/abs/1410.1059 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "tubes.h"
 
-int i,j,temp;
-int NumberOfVariable;
-int NumberOfAllMinterm,NumberOfDontCare,NumberOfRemainingMT,NumberOfRemainingPI;
-int NumberOfPI=0,NumberOfEPI=0,PotEPINo=0,NumberOfPossibleEPI=1,MinimumNo=0,Groupable=1;
-
-int *MintermIndicesDecimal, *MintermIndicesDecimal_DontCare;
-int **Minterm_Binary,****Column, **PI_Index,**EPI_Index,*NumberCounter;
-int *ReducedPIChart_X,**ReducedPIChart_Y,**ReducedPIChart,*For, **Potential_EPI,*NoOfPIForEPI;
-
-// Fungsi mengubah desimal ke biner
-void DecimalToBinary()
-{
-    int i,j,dividend;
-    for(i=0;i<NumberOfAllMinterm;i++)
-    {
-        dividend=MintermIndicesDecimal[i];
-        for(j=NumberOfVariable-1;j>=0;j--)
-        {
-            Minterm_Binary[i][j]=dividend%2;
-            dividend=dividend/2;
-        }
-    }
-}
-
-int IsDontCare(int MT)
-{
-    int i;
-    for(i=0;i<NumberOfDontCare;i++)
-        if(MT==MintermIndicesDecimal_DontCare[i])
-            return 1;
-    return 0;
-}
-
-// Fungsi counter
-int OneCounter(int *binary, int NumberOfDigit)
-{
-    int i,count=0;
-    for(i=0;i<=NumberOfDigit-1;i++)
-    {
-        if(binary[i]==1)
-            count++;
-    }
-    return count;
-}
-
-// Fungsi kombinasi kolom
-int Combination(int n, int ColumnNo, int k)
-{
-    int Comb,i,NtoK=1,Kto1=1;
-    for(i=n;i>=n-k+1-ColumnNo;i--)
-    {
-        NtoK=i*NtoK;
-    }
-    for(i=k;i>=1;i--)
-    {
-        Kto1=i*Kto1;
-    }
-    Comb=NtoK/Kto1;
-    return Comb;
-}
-
-// Fungsi untuk memeriksa apakah bilangan merupakan 2^n
-int IsPowerOfTwo(int n)
-{
-    return(ceil(log2(n)) == floor(log2(n)));
-}
-
-// Fungsi membuat rekursi dalam for loop
-void Recursion_For_Loop(int m)
-{
-    int n=m;
-    for(For[n]=0;For[n]<NumberOfRemainingPI;For[n]++)
-    {
-        if(ReducedPIChart[NumberOfRemainingMT-1-n][For[n]])
-        {
-            if(n>0)
-            {
-                m=n;
-                m--;
-                Recursion_For_Loop(m);
-            }
-            else if(n==0)
-            {
-                for(i=0;i<NumberOfRemainingMT;i++)
-                {
-                    Potential_EPI[PotEPINo][i]=For[NumberOfRemainingMT-1-i];
-                }
-                PotEPINo++;
-            }
-        }
-    }
-}
-
-// Fungsi main
 int main()
 {
     int k, l, m, n, x, y, LogicProbe;
+
+    printf("===============================================\n");
+    printf("Logic Minimization\n");
+    printf("===============================================\n");
 
     // Input jumlah variabel
     printf("Masukkan jumlah variabel: ");
@@ -115,6 +26,7 @@ int main()
         scanf("%d",&NumberOfVariable);
     }
 
+    // Input banyak minterm
     printf("Berapa banyak minterm (termasuk Don't Care)?\n");
     scanf("%d",&NumberOfAllMinterm);
     while(NumberOfAllMinterm>pow(2,NumberOfVariable) || NumberOfAllMinterm<=0)
@@ -124,8 +36,9 @@ int main()
         scanf("%d",&NumberOfAllMinterm);
     }
 
+    // Input minterm yang don't care
     printf("Berapa banyak minterm Don't-Care?\n");
-    scanf("%d",&NumberOfDontCare);    
+    scanf("%d",&NumberOfDontCare);
     while(NumberOfDontCare>=NumberOfAllMinterm || NumberOfDontCare<0)
     {
         printf("Banyak Don't-Care tidak boleh lebih besar daripada jumlah semua minterm atau lebih kecil dari 0.\n");
@@ -242,62 +155,48 @@ int main()
                 int p,position;
                 m=0;
                 for(k=0;k<Combination(NumberOfVariable,i,j);k++)
+                if(Column[i][j][k]!=NULL)
                 {
-                    if(Column[i][j][k]!=NULL)
+                    for(l=0;l<Combination(NumberOfVariable,i,j+1);l++)
                     {
-                        for(l=0;l<Combination(NumberOfVariable,i,j+1);l++)
+                        if(Column[i][j+1][l]!=NULL && Column[i][j+1][l][NumberOfVariable+2+i]>Column[i][j][k][NumberOfVariable+2+i] &&
+                        IsPowerOfTwo(Column[i][j+1][l][NumberOfVariable+2+i]-Column[i][j][k][NumberOfVariable+2+i]))
                         {
-                            if(Column[i][j+1][l]!=NULL && Column[i][j+1][l][NumberOfVariable+2+i]>Column[i][j][k][NumberOfVariable+2+i] && IsPowerOfTwo(Column[i][j+1][l][NumberOfVariable+2+i]-Column[i][j][k][NumberOfVariable+2+i]))
+                            LogicProbe=0-i;
+                            /* LogicProbe berfungsi untuk memeriksa apakah kedua term memiliki posisi '-' yang sama
+                            (direpresentasikan dengan '2') */
+                            for(n=1;n<=i;n++)
+                            for(p=1;p<=i;p++)
+                            if(Column[i][j+1][l][NumberOfVariable+1+n]==Column[i][j][k][NumberOfVariable+1+p])
                             {
-                                LogicProbe=0-i;
-                                /* LogicProbe berfungsi untuk memeriksa apakah kedua term memiliki posisi '-' yang sama (direpresentasikan dengan '2') */
-                                for(n=1;n<=i;n++)
+                                LogicProbe++;
+                            }
+                            if(LogicProbe==0)
+                            {
+                                Groupable=1;
+                                Column[i][j][k][NumberOfVariable+1]=1;
+                                Column[i][j+1][l][NumberOfVariable+1]=1;
+                                Column[i+1][j][m]=(int *)malloc((NumberOfVariable+4+i+pow(2,i+1))*sizeof(int));
+                                for(n=0;n<=NumberOfVariable+1+i;n++)
                                 {
-                                    for(p=1;p<=i;p++)
-                                    {
-                                        if(Column[i][j+1][l][NumberOfVariable+1+n]==Column[i][j][k][NumberOfVariable+1+p])
-                                        {
-                                            LogicProbe++;
-                                        }
-                                    }
+                                    Column[i+1][j][m][n]=Column[i][j][k][n];
                                 }
-                                if(LogicProbe==0)
+                                Column[i+1][j][m][NumberOfVariable+3+i]=Column[i][j][k][NumberOfVariable+2+i];
+                                for(n=NumberOfVariable+4+i;n<NumberOfVariable+4+i+pow(2,i+1);n++)
+                                Column[i+1][j][m][n]=0;
+                                position=log((Column[i][j+1][l][NumberOfVariable+2+i]-Column[i][j][k][NumberOfVariable+2+i]))/log(2);
+                                Column[i+1][j][m][NumberOfVariable-1-position]=2;
+                                Column[i+1][j][m][NumberOfVariable+1]=0;
+                                Column[i+1][j][m][NumberOfVariable+2+i]=position;
+                                for(p=0;p<pow(2,i);p++)
                                 {
-                                    Groupable=1;
-
-                                    Column[i][j][k][NumberOfVariable+1]=1;
-                                    Column[i][j+1][l][NumberOfVariable+1]=1;
-                                    Column[i+1][j][m]=(int *)malloc((NumberOfVariable+4+i+pow(2,i+1))*sizeof(int));
-                                    
-                                    for(n=0;n<=NumberOfVariable+1+i;n++)
-                                    {
-                                        Column[i+1][j][m][n]=Column[i][j][k][n];
-                                    }
-                                    
-                                    Column[i+1][j][m][NumberOfVariable+3+i]=Column[i][j][k][NumberOfVariable+2+i];
-                                    
-                                    for(n=NumberOfVariable+4+i;n<NumberOfVariable+4+i+pow(2,i+1);n++)
-                                    {
-                                        Column[i+1][j][m][n]=0;
-                                    }
-
-                                    position=log((Column[i][j+1][l][NumberOfVariable+2+i]-Column[i][j][k][NumberOfVariable+2+i]))/log(2);
-                                    
-                                    Column[i+1][j][m][NumberOfVariable-1-position]=2;
-                                    Column[i+1][j][m][NumberOfVariable+1]=0;
-                                    Column[i+1][j][m][NumberOfVariable+2+i]=position;
-                                    
-                                    for(p=0;p<pow(2,i);p++)
-                                    {
-                                        Column[i+1][j][m][NumberOfVariable+4+i+p]=Column[i][j][k][NumberOfVariable+3+i+p];
-                                    }
-                                    
-                                    for(p=pow(2,i);p<pow(2,i+1);p++)
-                                    {
-                                        Column[i+1][j][m][NumberOfVariable+4+i+p]=Column[i][j+1][l][NumberOfVariable+3+i+p-(int)pow(2,i)];
-                                    }
-                                    m++;
+                                    Column[i+1][j][m][NumberOfVariable+4+i+p]=Column[i][j][k][NumberOfVariable+3+i+p];
                                 }
+                                for(p=pow(2,i);p<pow(2,i+1);p++)
+                                {
+                                    Column[i+1][j][m][NumberOfVariable+4+i+p]=Column[i][j+1][l][NumberOfVariable+3+i+p-(int)pow(2,i)];
+                                }
+                                m++;
                             }
                         }
                     }
@@ -310,7 +209,7 @@ int main()
     NumberCounter=(int *)malloc(pow(2,NumberOfVariable)*sizeof(int));
     for(i=0;i<pow(2,NumberOfVariable);i++)
     NumberCounter[i]=0;
-    
+
     // Menyimpan Prime Implicants (duplikat akan dihapus)
     PI_Index=(int **)malloc(NumberOfAllMinterm*sizeof(int*));
     for(i=0;i<NumberOfAllMinterm;i++)
@@ -335,7 +234,7 @@ int main()
                             for(m=0;m<pow(2,i);m++)
                             {
                                 for(n=0;n<pow(2,i);n++)
-                                {    
+                                {
                                     if(Column[i][j][l][NumberOfVariable+3+i+m]==Column[i][j][k][NumberOfVariable+3+i+n])
                                     {
                                         LogicProbe++;
@@ -349,7 +248,7 @@ int main()
                         PI_Index[NumberOfPI][0]=i;
                         PI_Index[NumberOfPI][1]=j;
                         PI_Index[NumberOfPI][2]=k;
-                       
+
                         NumberOfPI++;
 
                         for(l=0;l<pow(2,i);l++)
@@ -415,7 +314,7 @@ int main()
             i++;
         }
     }
-    
+
     /* Kolom pertama ini berisi sisa Prime Implicant */
     NumberOfRemainingPI=0;
     for(i=0;i<NumberOfPI;i++)
@@ -430,7 +329,7 @@ int main()
             }
         }
     }
-    
+
     /* ReducedPIChart[i][j] merupakan isi dari Reduced PI Chart ('1' dipilih, '0' tidak dipilih) */
     if(NumberOfRemainingPI!=0)
     {
@@ -469,8 +368,8 @@ int main()
             Potential_EPI[i]=(int *)malloc(NumberOfRemainingMT*sizeof(int));
         }
         Recursion_For_Loop(NumberOfRemainingMT-1);
-        NoOfPIForEPI=(int *)malloc(NumberOfPossibleEPI*sizeof(int)); 
-        
+        NoOfPIForEPI=(int *)malloc(NumberOfPossibleEPI*sizeof(int));
+
         /* NoOfPIForEPI[i] akan menghitung berapa banyak PIs di setiap kombinasi yang memenuhi semua minterm */
         for(i=0;i<NumberOfPossibleEPI;i++)
             NoOfPIForEPI[i]=0;
@@ -498,7 +397,7 @@ int main()
 
         /* Mencetak hasil minimisasi */
         printf("\nHasil minimisasi:\n");
-        printf("\n ");
+        printf("\nF = ");
         for(x=0;x<NumberOfEPI;x++)
         {
             for(y=0;y<NumberOfVariable;y++)
@@ -509,14 +408,15 @@ int main()
                     printf("%c'",65+y);
             }
             if(x<NumberOfEPI-1)
-                printf("+");
+                printf(" + ");
         }
+        getchar();
         return 0;
     }
     else
     {
         printf("\n\nHasil minimisasi:\n");
-        printf("\n ");
+        printf("\nF = ");
         for(x=0;x<NumberOfEPI;x++)
         {
             for(y=0;y<NumberOfVariable;y++)
@@ -527,8 +427,10 @@ int main()
                     printf("%c'",65+y);
             }
             if(x<NumberOfEPI-1)
-                printf("+");
+                printf(" + ");
         }
+        getchar();
         return 0;
     }
 }
+
