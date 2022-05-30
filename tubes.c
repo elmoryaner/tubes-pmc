@@ -64,7 +64,7 @@ int main()
         }
         else if(MintermIndicesDecimal[i]>=pow(2,NumberOfVariable))
         {
-            printf("\nBilangan harus lebih kecil dari %d.\n\n",pow(2,NumberOfVariable));
+            printf("\nBilangan harus lebih kecil dari 2^%d.\n\n",NumberOfVariable);
             i=-1;
         }
     }
@@ -87,7 +87,7 @@ int main()
             }
             else if(MintermIndicesDecimal[i]>=pow(2,NumberOfVariable))
             {
-                printf("\nBilangan harus lebih kecil dari %d.\n\n",pow(2,NumberOfVariable));
+                printf("\nBilangan harus lebih kecil dari 2^%d.\n\n",NumberOfVariable);
                 i=-1;
             }
         }
