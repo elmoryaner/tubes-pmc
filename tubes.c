@@ -410,7 +410,8 @@ int main()
             if(x<NumberOfEPI-1)
                 printf(" + ");
         }
-        getchar();
+        printf("\n");
+        system("PAUSE");
         return 0;
     }
     else
@@ -429,7 +430,8 @@ int main()
             if(x<NumberOfEPI-1)
                 printf(" + ");
         }
-        getchar();
+        printf("\n");
+        system("PAUSE");
         return 0;
     }
 }
