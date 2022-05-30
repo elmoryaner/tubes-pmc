@@ -19,7 +19,7 @@ Program akan menerima input minterm yang sudah termasuk Don’t Care. Jika input
 
 Program lalu akan menerima banyak minterm yang Don’t Care. Jika input 0, maka program tidak akan menanyakan minterm yang Don’t Care. Penerimaan minterm akan berulang sampai sesuai dengan jumlah minterm yang ada. Setelah setiap input sudah dilakukan, program lalu akan memproses input-input tersebut untuk melakukan minimisasi logika, Setelah proses tersebut, program akan mengoutput hasil minimisasi. 
 
-Jika jumlah minterm sama dengan dua pangkat jumlah variabel, program akan mengoutput: 
+Jika jumlah minterm sama dengan dua pangkat jumlah variabel, program akan mengoutput F = 1.
 
  
 
