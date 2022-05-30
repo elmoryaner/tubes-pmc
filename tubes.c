@@ -417,19 +417,7 @@ int main()
     else
     {
         printf("\n\nHasil minimisasi:\n");
-        printf("\nF = ");
-        for(x=0;x<NumberOfEPI;x++)
-        {
-            for(y=0;y<NumberOfVariable;y++)
-            {
-                if(Column[EPI_Index[x][0]][EPI_Index[x][1]][EPI_Index[x][2]][y]==1)
-                    printf("%c",65+y);
-                else if(Column[EPI_Index[x][0]][EPI_Index[x][1]][EPI_Index[x][2]][y]==0)
-                    printf("%c'",65+y);
-            }
-            if(x<NumberOfEPI-1)
-                printf(" + ");
-        }
+        printf("\nF = 1\n");
         printf("\n");
         system("PAUSE");
         return 0;
